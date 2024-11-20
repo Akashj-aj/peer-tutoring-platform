@@ -5,7 +5,6 @@ const CreateStudyGroup = () => {
     const [name, setName] = useState('');
     const [subject, setSubject] = useState('');
     const [topic, setTopic] = useState('');
-    // const [maxStudents, setMaxStudents] = useState(15);  // Default to max 8 students
     const [description, setDescription] = useState('');
     const [scheduledTime, setScheduledTime] = useState('');
     const navigate = useNavigate();
@@ -23,9 +22,9 @@ const CreateStudyGroup = () => {
                     name,
                     subject,
                     topic,
-                    // max_students: maxStudents,
                     description,
-                    scheduled_time: scheduledTime
+                    scheduled_time: scheduledTime,
+                    // The access level is not needed here for creation as it's handled server-side
                 }),
             });
 
@@ -70,16 +69,6 @@ const CreateStudyGroup = () => {
                         onChange={(e) => setTopic(e.target.value)}
                     />
                 </div>
-                {/* <div>
-                    <label>Max Students:</label>
-                    <input
-                        type="number"
-                        value={maxStudents}
-                        onChange={(e) => setMaxStudents(Number(e.target.value))}
-                        min="1"
-                        max="8"
-                    />
-                </div> */}
                 <div>
                     <label>Description:</label>
                     <textarea
@@ -102,4 +91,3 @@ const CreateStudyGroup = () => {
 };
 
 export default CreateStudyGroup;
-// print("hello")

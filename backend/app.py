@@ -47,7 +47,8 @@ class StudyGroup(db.Model):
     topic = db.Column(db.String(300), nullable=False)
     # max_students = db.Column(db.Integer, nullable=False)
     scheduled_time = db.Column(db.DateTime, nullable=False)
-    description = db.Column(db.String(300), nullable=False)
+    description = db.Column(db.String(300), nullable=False) 
+    access = db.Column(db.String(300), nullable=False)
 
     def __repr__(self):
         return f"StudyGroup('{self.name}', '{self.subject}', '{self.topic}', '{self.scheduled_time}')"
@@ -166,7 +167,6 @@ def add_study_group():
     name = data['name']
     subject = data['subject']
     topic = data['topic']
-    # max_students = data['max_students']
     scheduled_time = datetime.strptime(data['scheduled_time'], "%Y-%m-%dT%H:%M")  # Convert string to datetime
     
     # Check if the group name already exists
@@ -178,9 +178,9 @@ def add_study_group():
         name=name, 
         subject=subject, 
         topic=topic, 
-        # max_students=max_students, 
         scheduled_time=scheduled_time,
-        description=data['description']
+        description=data['description'],
+        access='admin'  # Set the creator's access to "admin"
     )
     
     db.session.add(new_group)
