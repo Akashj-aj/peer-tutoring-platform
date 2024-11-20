@@ -7,6 +7,7 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import re 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import text
 
 # Initialize Flask app and CORS
 app = Flask(__name__)
@@ -118,17 +119,27 @@ def register():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    email = data['email']
-    password = data['password']
-    
-    # Fetch user from the database by email
-    user = User.query.filter_by(email=email).first()
-    
-    # Check if user exists and password matches
-    if user and check_password_hash(user.password, password):
-        login_user(user)
-        return jsonify({'message': 'Logged in successfully!'}), 200
-    return jsonify({'message': 'Invalid credentials!'}), 401
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required.'}), 400
+
+    # Use the `with_entities()` method to select specific columns (to avoid fetching unnecessary data)
+    query = db.session.query(User).filter_by(email=email)
+    user = query.first()
+
+    # Ensure the user is found
+    if not user:
+        return jsonify({'error': 'User not found. Please register first.'}), 404
+
+    # Check password
+    if not check_password_hash(user.password, password):
+        return jsonify({'error': 'Invalid password. Please try again.'}), 401
+
+    # If the email and password are correct, proceed with login (using Flask-Login, for example)
+    login_user(user)  # Assuming you're using Flask-Login for user session management
+    return jsonify({'message': 'Logged in successfully!'}), 200
 
 # Get all study groups route (GET)
 @app.route('/study_groups', methods=['GET'])

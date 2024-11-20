@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../services/api';
+import { loginUser } from '../services/api'; // Assuming loginUser is an API call function
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -33,12 +33,16 @@ const Login = () => {
             navigate('/home'); // Redirect to home page on success
         } catch (error) {
             // Check error response for "user not found" or "invalid credentials"
-            if (error.response && error.response.status === 404) {
-                setErrors({ email: '', password: '', general: 'User not registered. Please sign up.' });
-            } else if (error.response && error.response.status === 401) {
-                setErrors({ email: '', password: 'Invalid email or password.', general: '' });
+            if (error.response) {
+                if (error.response.status === 404) {
+                    setErrors({ email: '', password: '', general: 'User not registered. Please sign up.' });
+                } else if (error.response.status === 401) {
+                    setErrors({ email: '', password: 'Invalid email or password.', general: '' });
+                } else {
+                    setErrors({ email: '', password: '', general: 'An unexpected error occurred. Please try again.' });
+                }
             } else {
-                setErrors({ email: '', password: '', general: 'An unexpected error occurred. Please try again.' });
+                setErrors({ email: '', password: '', general: 'Network error. Please check your connection.' });
             }
         }
     };
