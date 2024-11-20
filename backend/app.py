@@ -5,7 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
-
+import re 
+from sqlalchemy.exc import IntegrityError
 
 # Initialize Flask app and CORS
 app = Flask(__name__)
@@ -50,15 +51,6 @@ class StudyGroup(db.Model):
     def __repr__(self):
         return f"StudyGroup('{self.name}', '{self.subject}', '{self.topic}', '{self.scheduled_time}')"
 
-    # Helper method to check if the group is expired
-    @staticmethod
-    def delete_expired_groups():
-        now = datetime.utcnow()
-        expired_groups = StudyGroup.query.filter(StudyGroup.scheduled_time < now).all()
-        for group in expired_groups:
-            db.session.delete(group)
-        db.session.commit()
-
 # Create database tables
 with app.app_context():
     db.create_all()
@@ -69,22 +61,58 @@ def home():
     return "Welcome to the Peer Tutoring & Study Group Platform!"
 
 # Register route (POST)
+
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()  # Get data from the request body
-    username = data['username']
-    email = data['email']
+
+    # Check if all required fields are present
+    if not data or not all(key in data for key in ('username', 'email', 'password')):
+        return jsonify({'error': 'All fields (username, email, password) are required.'}), 400
+
+    username = data['username'].strip()
+    email = data['email'].strip()
     password = data['password']
-    
+
+    # Validate username
+    if not username:
+        return jsonify({'error': 'Username cannot be empty.'}), 400
+    if len(username) < 3:
+        return jsonify({'error': 'Username must be at least 3 characters long.'}), 400
+
+    # Validate email
+    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    if not re.match(email_regex, email):
+        return jsonify({'error': 'Invalid email format.'}), 400
+
+    # Validate password
+    if not password or len(password) < 8:
+        return jsonify({'error': 'Password must be at least 8 characters long.'}), 400
+
     # Hash the password before storing
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-    
+
+    # Check for existing username or email conflicts
+    existing_username = User.query.filter_by(username=username).first()
+    if existing_username:
+        return jsonify({'error': 'Username already exists. Please use a different username.'}), 400
+
+    existing_email = User.query.filter_by(email=email).first()
+    if existing_email:
+        return jsonify({'error': 'Email already exists. Please use a different email address.'}), 400
+
     # Create a new user and add to the database
-    new_user = User(username=username, email=email, password=hashed_password)
-    db.session.add(new_user)
-    db.session.commit()
-    
+    try:
+        new_user = User(username=username, email=email, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()  # Rollback the transaction if there's a database error
+        return jsonify({'error': 'A database error occurred. Please try again later.'}), 500
+
     return jsonify({'message': 'User registered successfully!'}), 201
+
 
 # Login route (POST)
 @app.route('/login', methods=['POST'])
@@ -101,30 +129,6 @@ def login():
         login_user(user)
         return jsonify({'message': 'Logged in successfully!'}), 200
     return jsonify({'message': 'Invalid credentials!'}), 401
-
-def delete_expired_groups():
-    with app.app_context():  # Ensure proper Flask context
-        now = datetime.now()
-        expired_groups = StudyGroup.query.filter(StudyGroup.scheduled_time < now).all()
-        for group in expired_groups:
-            db.session.delete(group)
-        db.session.commit()
-        print("Expired groups deleted")
-
-# Add scheduler to the app
-from flask_apscheduler import APScheduler
-
-scheduler = APScheduler()
-scheduler.init_app(app)
-scheduler.start()
-
-# Add cleanup job to run every hour
-scheduler.add_job(
-    id='delete_expired_groups',
-    func=delete_expired_groups,
-    trigger='interval',
-    hours=1
-)
 
 # Get all study groups route (GET)
 @app.route('/study_groups', methods=['GET'])
