@@ -123,6 +123,25 @@ def register():
     return jsonify({'message': 'User registered successfully!'}), 201
 
 
+@app.route('/join_group/<int:group_id>', methods=['POST'])
+def join_group(group_id):
+    # Get the current user (assuming the user is logged in and their id is stored in the session)
+    current_user = User.query.filter_by(id=1).first()  # Replace with the actual logged-in user logic
+
+    if not current_user:
+        return jsonify({'message': 'User not found. Please log in first.'}), 404
+
+    # Get the study group by ID
+    group = StudyGroup.query.get(group_id)
+    if not group:
+        return jsonify({'message': 'Study group not found.'}), 404
+
+    # Update the user's access to "user"
+    group.access = 'user'  # You might want to adjust this part based on your logic for access control
+
+    db.session.commit()
+    return jsonify({'message': f'You have successfully joined the group: {group.name}'}), 200
+
 # Login route (POST)
 @app.route('/login', methods=['POST'])
 def login():
