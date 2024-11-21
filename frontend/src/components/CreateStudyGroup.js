@@ -11,33 +11,39 @@ const CreateStudyGroup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
+        // Validate input fields
+        if (!name || !subject || !topic) {
+            alert('Please fill in all the required fields');
+            return;
+        }
+    
         try {
             const response = await fetch('http://localhost:5000/study_groups', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name,
                     subject,
                     topic,
                     description,
                     scheduled_time: scheduledTime,
-                    // The access level is not needed here for creation as it's handled server-side
                 }),
             });
-
-            const data = await response.json();
-            
-            if (response.status === 201) {
-                navigate('/study-groups');
+    
+            if (response.ok) { // Check if the response is successful
+                const data = await response.json(); // Parse JSON
+                navigate('/study-group-details', { 
+                    state: { name, subject, topic } 
+                });
             } else {
-                alert(data.message);  // Display the error message (e.g., group name already exists)
+                // Handle non-201 errors
+                const data = await response.json();
+                alert(data.message || 'Failed to create study group');
             }
-
         } catch (error) {
-            alert('Error creating study group');
+            // Handle network or other unexpected errors
+            alert('Network error: Unable to create study group');
         }
     };
 

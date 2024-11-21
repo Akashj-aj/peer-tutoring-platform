@@ -8,7 +8,9 @@ import HomePage from './components/HomePage';
 import CreateStudyGroup from './components/CreateStudyGroup';  // You need to create this component
 import FindTutor from './components/FindTutor';  // You need to create this component
 import BecomeTutor from './components/BecomeTutor';  // You need to create this component
-
+import Whiteboard from './components/Whiteboard';
+import Messages from './components/Messages';
+import GroupDetailsPage from './components/GroupDetailsPage';
 
 const App = () => (
     <Router>
@@ -22,6 +24,10 @@ const App = () => (
                 <Route path="/create-study-group" element={<CreateStudyGroup />} />
                 <Route path="/find-tutor" element={<FindTutor />} />
                 <Route path="/become-tutor" element={<BecomeTutor />} />
+                <Route path="/" element={<CreateStudyGroup />} />
+                <Route path="/study-group-details" element={<GroupDetailsPage />} />
+                <Route path="/whiteboard" element={<Whiteboard />} />
+                <Route path="/messages" element={<Messages />} />
             </Routes>
         </div>
     </Router>

@@ -8,10 +8,17 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import re 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import text
+from flask_socketio import SocketIO, emit
 
 # Initialize Flask app and CORS
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app)
+
+@socketio.on('message')
+def handle_message(data):
+    print(f"Received message: {data}")
+    emit('message', data, broadcast=True)  # Broadcast to all connected users
 
 # Database setup
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # SQLite Database
