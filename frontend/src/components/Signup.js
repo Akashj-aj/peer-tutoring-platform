@@ -19,10 +19,14 @@ const Signup = () => {
         if (!email) newErrors.email = 'Email is required.';
         else if (!emailRegex.test(email)) newErrors.email = 'Invalid email format.';
 
-        if (!password || password.length < 8) {
-            newErrors.password = 'Password must be at least 8 characters long.';
-        }
-
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    if (!password) {
+        newErrors.password = 'Password is required.';
+    } else if (password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters long.';
+    } else if (!passwordRegex.test(password)) {
+        newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.';
+    }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0; // Returns true if no errors
     };
