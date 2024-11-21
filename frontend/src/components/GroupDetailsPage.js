@@ -7,6 +7,10 @@ const GroupDetailsPage = () => {
     const location = useLocation();
     const { name, subject, topic } = location.state || {};
 
+    if (!name) {
+        return <div>Group not found.</div>; // Handle the case where state is not passed correctly
+    }
+
     const handleWhiteboard = () => {
         navigate('/whiteboard', { state: { groupName: name } });
     };

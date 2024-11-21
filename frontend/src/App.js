@@ -11,6 +11,7 @@ import BecomeTutor from './components/BecomeTutor';  // You need to create this 
 import Whiteboard from './components/Whiteboard';
 import Messages from './components/Messages';
 import GroupDetailsPage from './components/GroupDetailsPage';
+import ViewYourGroups from './components/ViewYourGroups'; 
 
 const App = () => (
     <Router>
@@ -28,6 +29,7 @@ const App = () => (
                 <Route path="/study-group-details" element={<GroupDetailsPage />} />
                 <Route path="/whiteboard" element={<Whiteboard />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/view-your-groups" element={<ViewYourGroups />} />  {/* New route */}
             </Routes>
         </div>
     </Router>

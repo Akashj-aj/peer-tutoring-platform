@@ -18,6 +18,9 @@ const HomePage = () => {
             case 'Become a Tutor':
                 navigate('/become-tutor');
                 break;
+            case 'View Your Group': // New case for viewing the user's groups
+                navigate('/view-your-groups'); // This will route to the MyGroupsPage
+                break;
             default:
                 break;
         }
@@ -29,6 +32,7 @@ const HomePage = () => {
             <ul>
                 <li><button onClick={() => handleFeatureClick('Find Study Group')}>Find Study Group</button></li>
                 <li><button onClick={() => handleFeatureClick('Create Study Group')}>Create Study Group</button></li>
+                <li><button onClick={() => handleFeatureClick('View Your Group')}>View Your Group</button></li> {/* New button */}
                 <li><button onClick={() => handleFeatureClick('Find Tutor')}>Find Tutor</button></li>
                 <li><button onClick={() => handleFeatureClick('Become a Tutor')}>Become a Tutor</button></li>
             </ul>
